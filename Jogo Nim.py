@@ -1,95 +1,115 @@
-def multiplos_de_m_mais_1(peças_restantes_no_jogo,m): # verificar multiplos de m +1 
-        multiplos = []
-        for x in range(m+1,(peças_restantes_no_jogo+1)):
-            if (x % (m+1)) == 0:
-                multiplos.append(x)
-        
-        return multiplos
+def computador_escolhe_jogada(n, m):
+    computadorRemove = 1
 
-def computador_escolhe_jogada(n, m, historico_peças):
-    # Verificar se n é múltiplo de (m+1)
-    if n % (m + 1) == 0:
-        return m  # Computador pode retirar o máximo possível
+    while computadorRemove != m:
+        # Verifica se a jogada atual de remoção do computador deixa um múltiplo de (m+1) para o adversário
+        if (n - computadorRemove) % (m + 1) == 0:
+            return computadorRemove
+        else:
+            computadorRemove += 1
 
-    # Verificar se é possível deixar um múltiplo de (m+1) ao oponente
-    for jogada in range(1, m + 1):
-        if (n - jogada) % (m + 1) == 0 and jogada not in historico_peças:
-            return jogada
+    return computadorRemove
 
-    # Se não for possível deixar um múltiplo de (m+1), retirar o máximo permitido
-    return m
-
-
-def usuario_escolhe_jogada(n,m):
+def usuario_escolhe_jogada(n, m):
+    # Função para a escolha de jogada pelo usuário
     peças_retiradas_usuario = int(input("Quantas peças você vai tirar? "))
 
-    if peças_retiradas_usuario > m:
-        while peças_retiradas_usuario > m:
+    # Verifica se a jogada do usuário é válida
+    if peças_retiradas_usuario > m or peças_retiradas_usuario < 1:
+        while peças_retiradas_usuario > m or peças_retiradas_usuario > n or peças_retiradas_usuario <= 0:
             print("Oops! Jogada inválida! Tente de novo.")
             peças_retiradas_usuario = int(input("Quantas peças você vai tirar? "))
 
     return peças_retiradas_usuario
 
-resultados = ["Fim do jogo! Você ganhou","Fim do jogo! O computador ganhou"]
+resultados = ["Fim do jogo! Você ganhou", "Fim do jogo! O computador ganhou"]
 
 def partida():
+    # Função para jogar uma partida isolada
     n = int(input("Quantas peças? "))
     m = int(input("Limite de peças por jogada? "))
 
-    c = 0
-    peças_restantes_no_jogo = n
+    # Verifica se o limite de peças por jogada é maior ou igual ao total de peças
+    if m >= n:
+        print("Oops! Jogada inválida! O limite de peças por jogada deve ser menor que o total de peças.")
+        return
 
-    if n in multiplos_de_m_mais_1(n,m): #usuario começa
-        c = 0
+    c = 0  # Indica se o computador joga ou não
+
+    if n % (m + 1) == 0:  # Usuário começa
+        c = 1  # Computador é o próximo a jogar
 
         print("\nVocê começa!\n")
 
-        peças_retiradas_usuario = usuario_escolhe_jogada(n,m)
+        peças_retiradas_usuario = usuario_escolhe_jogada(n, m)
 
-        peças_restantes_no_jogo -= peças_retiradas_usuario
+        n -= peças_retiradas_usuario
 
-        print("Voce tirou",peças_retiradas_usuario,"peças.")
-        print("Agora restam", peças_restantes_no_jogo ,"peças no tabuleiro.\n")        
+        if peças_retiradas_usuario == 1:
+            print("Você tirou uma peça.")
+        else:
+            print("Você tirou", peças_retiradas_usuario, "peças.")
 
-    else: #computador começa
-        c = 1
+        if n == 1:
+            print("Agora resta apenas uma peça no tabuleiro.\n")
+        else:
+            print("Agora restam", n, "peças no tabuleiro.\n")
+
+    else:  # Computador começa
+        c = 0  # Usuário é o próximo a jogar
 
         print("\nComputador começa!\n")
-        peças_retiradas_computador = computador_escolhe_jogada(n,m)
+        peças_retiradas_computador = computador_escolhe_jogada(n, m)
 
-        peças_restantes_no_jogo -= peças_retiradas_computador
+        n -= peças_retiradas_computador
 
-        print("O computador tirou",peças_retiradas_computador,"peças.")
-        print("Agora restam", peças_restantes_no_jogo ,"peças no tabuleiro.\n")         
+        if peças_retiradas_computador == 1:
+            print("O computador tirou uma peça.")
+        else:
+            print("O computador tirou", peças_retiradas_computador, "peças.")
+        print("Agora restam", n, "peças no tabuleiro.\n")
 
-    while peças_restantes_no_jogo > 0:
+    while n > 0:
 
-        if c == 1: #usuario joga
-            c = 0 # definir que o computador será o próximo a jogar
-            peças_retiradas_usuario = usuario_escolhe_jogada(n,m)
+        if c == 0:  # Usuário joga
+            c = 1  # Indica que o computador será o próximo a jogar
+            peças_retiradas_usuario = usuario_escolhe_jogada(n, m)
 
-            peças_restantes_no_jogo -= peças_retiradas_usuario
+            n -= peças_retiradas_usuario
+            if peças_retiradas_usuario == 1:
+                print("Você tirou uma peça.")
+            else:
+                print("Você tirou", peças_retiradas_usuario, "peças.")
 
-            print("Voce tirou",peças_retiradas_usuario,"peças")
-            if peças_restantes_no_jogo == 0:
+            if n == 0:
                 return resultados[0]
 
-        else: #computador joga
-            c = 1 # definir que o computador NÃO será o PRÓXIMO a jogar
-            peças_retiradas_computador = computador_escolhe_jogada(n,m)
+            if n == 1:
+                print("Agora resta apenas uma peça no tabuleiro.\n")
+            elif n != 0:
+                print("Agora restam", n, "peças no tabuleiro.\n")
 
-            peças_restantes_no_jogo -= peças_retiradas_computador
+        else:  # Computador joga
+            c = 0  # Indica que o computador NÃO será o próximo a jogar
+            peças_retiradas_computador = computador_escolhe_jogada(n, m)
 
-            print("O computador tirou",peças_retiradas_computador,"peças.")
-            if peças_restantes_no_jogo == 0:
+            n -= peças_retiradas_computador
+            if peças_retiradas_computador == 1:
+                print("O computador tirou uma peça.")
+            else:
+                print("O computador tirou", peças_retiradas_computador, "peças.")
+
+            if n == 0:
                 return resultados[1]
 
-        if peças_restantes_no_jogo != 0:
-            print("Agora restam", peças_restantes_no_jogo ,"peças no tabuleiro.\n")
+            if n == 1:
+                print("Agora resta apenas uma peça no tabuleiro.\n")
+            elif n != 0:
+                print("Agora restam", n, "peças no tabuleiro\n")
 
-        n = peças_restantes_no_jogo
-    
+
 def campeonato():
+    # Função para jogar um campeonato
     pontos_usuario = 0
     pontos_computador = 0
 
@@ -123,9 +143,8 @@ def campeonato():
 partida_ou_campeonato = int(input("\nBem-vindo ao jogo do NIM! Escolha:\n\n1 - para jogar uma partida isolada\n2 - para jogar um campeonato "))
 
 if partida_ou_campeonato == 1:
-    print("\nVoce escolheu uma partida!\n")
+    print("\nVocê escolheu uma partida!\n")
     print(partida())
 elif partida_ou_campeonato == 2:
-    print("\nVoce escolheu um campeonato!")
+    print("\nVocê escolheu um campeonato!")
     campeonato()
-
